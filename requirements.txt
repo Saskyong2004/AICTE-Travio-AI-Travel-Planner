@@ -1,0 +1,8 @@
+streamlit>=1.35.0
+ibm-watsonx-ai>=1.1.2
+python-dotenv>=1.0.0
+requests>=2.31.0
+langchain>=0.2.0
+langchain-ibm>=0.1.7
+langchain-community>=0.2.0
+pydantic>=2.0.0
