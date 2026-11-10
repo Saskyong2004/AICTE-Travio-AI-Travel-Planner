@@ -165,7 +165,7 @@ def build_itinerary_prompt(
     interests: str,
 ) -> str:
     """
-    Build a structured prompt to send to Llama 3.3 for itinerary generation.
+    Build a structured prompt to send to IBM Granite for itinerary generation.
     """
     return f"""You are an expert travel planner. Create a detailed {days}-day itinerary for a trip to {destination}.
 

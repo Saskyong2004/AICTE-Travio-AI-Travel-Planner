@@ -2,7 +2,7 @@
 granite_agent.py  — SUPERSEDED, kept for reference only
 =========================================================
 This module is no longer imported by app.py.
-The active LLM wrapper is llm_agent.py (uses meta-llama/llama-3-3-70b-instruct).
+The active LLM wrapper is llm_agent.py (uses ibm/granite-3-8b-instruct).
 """
 
 import os
@@ -27,7 +27,7 @@ def get_model():
     """
     api_key = os.getenv("IBM_API_KEY", "")
     project_id = os.getenv("IBM_PROJECT_ID", "")
-    model_id = os.getenv("IBM_MODEL_ID", "meta-llama/llama-3-3-70b-instruct")
+    model_id = os.getenv("IBM_MODEL_ID", "ibm/granite-3-8b-instruct")
 
     if not api_key or api_key == "your_ibm_api_key_here":
         raise ValueError(

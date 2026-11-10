@@ -17,7 +17,7 @@ load_dotenv()
 # Default model — used only when IBM_MODEL_ID is not set in .env.
 # Change this constant OR set IBM_MODEL_ID in .env to switch models.
 # ---------------------------------------------------------------------------
-DEFAULT_MODEL_ID = "meta-llama/llama-3-3-70b-instruct"
+DEFAULT_MODEL_ID = "ibm/granite-4-h-small"
 
 
 def get_active_model_id() -> str:

@@ -2,7 +2,7 @@
 app.py
 ======
 AI Travel Planner Agent — Streamlit UI
-Powered by Llama 3.3 on IBM watsonx.ai — IBM Cloud Lite tier compatible
+Powered by IBM Granite on IBM watsonx.ai — IBM Cloud Lite tier compatible
 """
 
 import os
@@ -539,9 +539,52 @@ with tab4:
         "hidden gems, safety tips, food recommendations, and more."
     )
 
-    # Display conversation history
+    # Conversation is drawn into this placeholder AFTER any new message is handled
     chat_container = st.container()
-    with chat_container:
+
+    st.markdown("---")
+
+    # Suggested questions
+    st.markdown("**💡 Quick questions:**")
+    quick_cols = st.columns(3)
+    quick_questions = [
+        f"What visa do I need for {destination_city}?",
+        f"Best local foods to try in {destination_city}",
+        f"Is {destination_city} safe for solo travelers?",
+        f"What currency is used in {destination_city}?",
+        f"Top hidden gems in {destination_city}",
+        f"What to pack for {trip_days} days in {destination_city}?",
+    ]
+    for i, qcol in enumerate(quick_cols):
+        for j in range(2):
+            idx = i + j * 3
+            if idx < len(quick_questions):
+                if qcol.button(quick_questions[idx], key=f"quick_{idx}", use_container_width=True):
+                    st.session_state._quick_q = quick_questions[idx]
+
+    # Check if a quick question was clicked
+    auto_question = st.session_state.pop("_quick_q", None)
+
+    with st.form("chat_form", clear_on_submit=True):
+        user_input = st.text_input(
+            "Your message",
+            placeholder="Ask about your trip to " + destination_city + "...",
+            label_visibility="collapsed",
+        )
+        send_btn = st.form_submit_button("Send 📨", use_container_width=True)
+
+    # A clicked quick question is sent immediately; otherwise use the typed message
+    message = auto_question or (user_input.strip() if send_btn else "")
+
+    if message:
+        st.session_state.chat_history.append({"role": "user", "content": message})
+        with st.spinner(f"🤖 {_model_label} is thinking..."):
+            reply = chat_with_agent(message, st.session_state.chat_history[:-1])
+        st.session_state.chat_history.append({"role": "assistant", "content": reply})
+
+    # Display conversation history (inside the placeholder above)
+    chat_container_ = chat_container
+    with chat_container_:
         if not st.session_state.chat_history:
             st.markdown(f"""
 <div class="travel-card">
@@ -571,49 +614,12 @@ with tab4:
                         unsafe_allow_html=True,
                     )
 
-    st.markdown("---")
-
-    # Suggested questions
-    st.markdown("**💡 Quick questions:**")
-    quick_cols = st.columns(3)
-    quick_questions = [
-        f"What visa do I need for {destination_city}?",
-        f"Best local foods to try in {destination_city}",
-        f"Is {destination_city} safe for solo travelers?",
-        f"What currency is used in {destination_city}?",
-        f"Top hidden gems in {destination_city}",
-        f"What to pack for {trip_days} days in {destination_city}?",
-    ]
-    for i, qcol in enumerate(quick_cols):
-        for j in range(2):
-            idx = i + j * 3
-            if idx < len(quick_questions):
-                if qcol.button(quick_questions[idx], key=f"quick_{idx}", use_container_width=True):
-                    st.session_state._quick_q = quick_questions[idx]
-
-    # Check if a quick question was clicked
-    auto_question = st.session_state.pop("_quick_q", None)
-
-    with st.form("chat_form", clear_on_submit=True):
-        user_input = st.text_input(
-            "Your message",
-            value=auto_question or "",
-            placeholder="Ask about your trip to " + destination_city + "...",
-            label_visibility="collapsed",
-        )
-        send_btn = st.form_submit_button("Send 📨", use_container_width=True)
-
-    if send_btn and user_input.strip():
-        st.session_state.chat_history.append({"role": "user", "content": user_input.strip()})
-        with st.spinner(f"🤖 {_model_label} is thinking..."):
-            reply = chat_with_agent(user_input.strip(), st.session_state.chat_history[:-1])
-        st.session_state.chat_history.append({"role": "assistant", "content": reply})
-        st.rerun()
-
     if st.session_state.chat_history:
-        if st.button("🗑️ Clear Chat", use_container_width=True):
-            st.session_state.chat_history = []
-            st.rerun()
+        st.button(
+            "🗑️ Clear Chat",
+            use_container_width=True,
+            on_click=lambda: st.session_state.update(chat_history=[]),
+        )
 
 
 # ═══════════════════════════════════════════════════════════════════════════
